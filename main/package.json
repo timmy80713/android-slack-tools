@@ -1,0 +1,7 @@
+{
+  "name": "android-slack-tools-main-nodejs",
+  "version": "0.0.1",
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.1.3"
+  }
+}
