@@ -10,7 +10,8 @@ gcloud functions deploy slack-tools \
     --source . \
     --trigger-http \
     --allow-unauthenticated \
-    --timeout 180s
+    --timeout 180s \
+    --set-secrets "SLACK_SIGNING_SECRET=SLACK_SIGNING_SECRET:latest"
 
 REPOSITORY=gcf-artifacts
 PACKAGE=slack--tools
