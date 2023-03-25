@@ -1,8 +1,15 @@
 package functions
 
 import com.google.cloud.functions.CloudEventsFunction
+import functions.api.SlackApiStation
+import functions.executor.ExecutorBuildApp
+import functions.executor.ExecutorDeploy
 import functions.model.PubSubBody
+import functions.model.PubSubMessagePayload
+import functions.model.Whitelist
+import functions.model.toRegex
 import io.cloudevents.CloudEvent
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import java.util.*
 import java.util.logging.Logger
@@ -22,6 +29,34 @@ class App : CloudEventsFunction {
             val encodedData = pubSubBody.message.data
             val decodedData = String(Base64.getDecoder().decode(encodedData), Charsets.UTF_8)
             logger.info("Decoded data: $decodedData")
+            val messagePayload = json.decodeFromString(PubSubMessagePayload.serializer(), decodedData)
+
+            val urlPath = messagePayload.urlPath
+            val matchResult = urlPath?.run {
+                Whitelist.values().map { it.toRegex }.firstNotNullOfOrNull { it.find(this) }
+            }
+            if (matchResult == null) {
+                logger.info("Invalid URL path.")
+                runBlocking { SlackApiStation.respondEphemeral(messagePayload.responseUrl, "Not found.") }
+                return
+            }
+
+            val unformattedWorkflowId = matchResult.groupValues[1]
+            val formattedWorkflowId = unformattedWorkflowId.replace("-", "_")
+            val executor = when (Whitelist.values().first { it.value == unformattedWorkflowId }) {
+                Whitelist.Qa -> ExecutorBuildApp(messagePayload, formattedWorkflowId)
+                Whitelist.RegressionStart,
+                Whitelist.RegressionHotfix,
+                Whitelist.ProductionHotfix -> ExecutorDeploy(messagePayload, formattedWorkflowId)
+            }
+            logger.info("The executor is ${executor.javaClass.simpleName}.")
+
+            try {
+                runBlocking { executor.execute() }
+            } catch (e: Exception) {
+                logger.info("Occur exception $e")
+                return
+            }
         }
     }
 }

@@ -13,11 +13,18 @@ val invoker by configurations.creating
 
 dependencies {
     // Jetbrains
+    implementation("io.ktor:ktor-client-core:2.2.4")
+    implementation("io.ktor:ktor-client-cio:2.2.4")
+    implementation("io.ktor:ktor-client-content-negotiation:2.2.4")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.4")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
 
     // Google
     implementation("com.google.cloud.functions:functions-framework-api:1.0.4")
     invoker("com.google.cloud.functions.invoker:java-function-invoker:1.2.0")
+
+    // Clikt
+    implementation("com.github.ajalt.clikt:clikt:3.5.2")
 }
 
 

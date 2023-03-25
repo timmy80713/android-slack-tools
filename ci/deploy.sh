@@ -10,7 +10,8 @@ gcloud functions deploy slack-tools-ci \
     --entry-point functions.App \
     --source build/libs \
     --trigger-topic "slack-tools.ci" \
-    --timeout 180s
+    --timeout 180s \
+    --set-secrets "BITRISE_BUILD_TRIGGER_TOKEN=BITRISE_BUILD_TRIGGER_TOKEN:latest"
 
 REPOSITORY=gcf-artifacts
 PACKAGE=slack--tools--ci
