@@ -4,6 +4,7 @@ enum class Whitelist(val value: String) {
     Qa("qa"),
     RegressionStart("regression-start"),
     RegressionHotfix("regression-hotfix"),
+    RegressionFinish("regression-finish"),
     ProductionHotfix("production-hotfix"),
 }
 
