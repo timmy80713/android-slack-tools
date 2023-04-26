@@ -40,26 +40,43 @@ functions.http("presentBuildAppUi", (req, res) => {
     };
     res.status(200).send(slackPayload);
 
+    fetchBranches(1)
+        .then((branches) => {
+            const slackPayload = generateSlackPayload(branches);
+            console.log("Slack payload => ", JSON.stringify(slackPayload));
+            axios.post(req.body.response_url, JSON.stringify(slackPayload), {
+                headers: { "Content-Type": "application/json" }
+            }).then((response) => {
+                console.log("Send Slack message succeeded => ", response.statusText);
+            }).catch((error) => {
+                console.log("Send Slack message failed => ", error.message);
+            });
+        })
+        .catch((error) => {
+            console.log("Fetch branches failed => ", error.message);
+        });
+});
+
+function fetchBranches(page, branches = []) {
     const githubData = JSON.parse(process.env.GITHUB_DATA)
     const owner = githubData.owner
     const repo = githubData.repo
-    axios.get(`https://api.github.com/repos/${owner}/${repo}/branches`, {
+    return axios.get(`https://api.github.com/repos/${owner}/${repo}/branches`, {
+        params: { page: page, per_page: 30 },
         headers: { Authorization: `token ${process.env.GITHUB_PERSONAL_ACCESS_TOKEN}` }
     }).then((response) => {
-        const branches = response.data;
-        const slackPayload = generateSlackPayload(branches);
-        console.log("Slack payload => ", JSON.stringify(slackPayload));
-        axios.post(req.body.response_url, JSON.stringify(slackPayload), {
-            headers: { "Content-Type": "application/json" }
-        }).then((response) => {
-            console.log("Send Slack message succeeded => ", response.statusText);
-        }).catch((error) => {
-            console.log("Send Slack message failed => ", error.message);
-        });
+        const data = response.data;
+        branches.push(...data);
+        if (data.length === 0 || data.length % 30 !== 0) {
+            return branches;
+        } else {
+            return fetchBranches(page + 1, branches);
+        }
     }).catch((error) => {
         console.log("Fetch GutHub branches failed => ", error.message);
+        return branches;
     });
-});
+}
 
 function generateSlackPayload(branches) {
     const branchBlock = generateBranchBlock(branches);
