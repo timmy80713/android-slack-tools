@@ -1,5 +1,6 @@
 package functions.executor
 
+import functions.model.clickup.ClickUpCustomField
 import functions.model.clickup.ClickUpStatus
 import functions.model.clickup.ClickUpView
 import functions.model.resultOrNull
@@ -10,22 +11,28 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import java.util.logging.Logger
 
-class ExecutorUpdateTask(
-    private val clickUpView: ClickUpView,
-    private val targetStatus: ClickUpStatus,
+class ExecutorRegressionStart(
+    private val tag: String,
     private val clickUpRepoImpl: ClickUpRepoImpl,
 ) : Executor {
 
-    private val logger = Logger.getLogger(ExecutorUpdateTask::class.java.name)
+    private val logger = Logger.getLogger(ExecutorRegressionStart::class.java.name)
 
     override suspend fun execute() {
+
+        val clickUpView = ClickUpView.WaitForRelease
+        val targetStatus = ClickUpStatus.RegressionTest
+
         val clickUpTasks = clickUpRepoImpl.fetchTasks(clickUpView.id).filter {
             it.name.contains("TimmmmmmY", ignoreCase = true)
         }
 
-        logger.info("UpdateTask tasks size => ${clickUpTasks.size}")
+        logger.info("${clickUpView.name} has ${clickUpTasks.size} tasks.")
 
         withContext(Dispatchers.IO) {
+            clickUpTasks.map {
+                async { clickUpRepoImpl.addCustomField(it.id, ClickUpCustomField.AndroidAppVersion.id, tag) }
+            }.awaitAll().mapNotNull { it.resultOrNull() }
             clickUpTasks.map {
                 async { clickUpRepoImpl.updateTask(it.id, targetStatus) }
             }.awaitAll().mapNotNull { it.resultOrNull() }

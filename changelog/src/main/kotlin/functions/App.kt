@@ -5,13 +5,12 @@ import com.google.cloud.functions.HttpRequest
 import com.google.cloud.functions.HttpResponse
 import functions.api.ClickUpApiClientImpl
 import functions.api.SlackApiClientImpl
-import functions.executor.ExecutorUpdateTask
-import functions.executor.ExecutorUpdateTaskAndPrintChangelog
+import functions.executor.ExecutorProductionHotfix
+import functions.executor.ExecutorRegressionFinish
+import functions.executor.ExecutorRegressionHotfix
+import functions.executor.ExecutorRegressionStart
 import functions.model.ChangelogRequestBody
 import functions.model.Workflow
-import functions.model.clickup.ClickUpCustomField
-import functions.model.clickup.ClickUpStatus
-import functions.model.clickup.ClickUpView
 import functions.model.slack.SlackMessagePayloadCreator
 import functions.repo.ClickUpRepoImpl
 import functions.repo.SlackRepoImpl
@@ -40,43 +39,31 @@ class App : HttpFunction {
 
         val executor = when (changelogRequestBody.workflow) {
             Workflow.RegressionStart -> {
-                ExecutorUpdateTaskAndPrintChangelog(
+                ExecutorRegressionStart(
                     tag = changelogRequestBody.tag,
-                    clickUpView = ClickUpView.WaitForRelease,
-                    targetCustomField = ClickUpCustomField.AndroidAppVersion,
-                    targetStatus = ClickUpStatus.RegressionTest,
                     clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
-                    slackRepoImpl = SlackRepoImpl(SlackApiClientImpl()),
-                    slackMessagePayloadCreator = SlackMessagePayloadCreator(),
                 )
             }
 
             Workflow.RegressionHotfix -> {
-                ExecutorUpdateTaskAndPrintChangelog(
+                ExecutorRegressionHotfix(
                     tag = changelogRequestBody.tag,
-                    clickUpView = ClickUpView.RegressionHotfix,
-                    targetCustomField = ClickUpCustomField.AndroidAppVersion,
-                    targetStatus = ClickUpStatus.RegressionTest,
+                    clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
+                )
+            }
+
+            Workflow.RegressionFinish -> {
+                ExecutorRegressionFinish(
+                    tag = changelogRequestBody.tag,
                     clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
                     slackRepoImpl = SlackRepoImpl(SlackApiClientImpl()),
                     slackMessagePayloadCreator = SlackMessagePayloadCreator(),
                 )
             }
 
-            Workflow.RegressionFinish -> {
-                ExecutorUpdateTask(
-                    clickUpView = ClickUpView.RegressionTest,
-                    targetStatus = ClickUpStatus.Close,
-                    clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
-                )
-            }
-
             Workflow.ProductionHotfix -> {
-                ExecutorUpdateTaskAndPrintChangelog(
+                ExecutorProductionHotfix(
                     tag = changelogRequestBody.tag,
-                    clickUpView = ClickUpView.ProductionHotfix,
-                    targetCustomField = ClickUpCustomField.AndroidAppVersion,
-                    targetStatus = ClickUpStatus.Close,
                     clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
                     slackRepoImpl = SlackRepoImpl(SlackApiClientImpl()),
                     slackMessagePayloadCreator = SlackMessagePayloadCreator(),

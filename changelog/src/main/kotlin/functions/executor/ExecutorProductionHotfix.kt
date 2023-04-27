@@ -17,20 +17,19 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import java.util.logging.Logger
 
-class ExecutorUpdateTaskAndPrintChangelog(
+class ExecutorProductionHotfix(
     private val tag: String,
-    private val clickUpView: ClickUpView,
-    private val targetCustomField: ClickUpCustomField,
-    private val targetStatus: ClickUpStatus,
     private val clickUpRepoImpl: ClickUpRepoImpl,
     private val slackRepoImpl: SlackRepoImpl,
     private val slackMessagePayloadCreator: SlackMessagePayloadCreator,
 ) : Executor {
 
-    private val logger = Logger.getLogger(ExecutorUpdateTask::class.java.name)
+    private val logger = Logger.getLogger(ExecutorProductionHotfix::class.java.name)
 
     override suspend fun execute() {
-        val slackUsers = slackRepoImpl.fetchUsers()
+
+        val clickUpView = ClickUpView.ProductionHotfix
+        val targetStatus = ClickUpStatus.Close
 
         val taskNameReplaceRegex = "\\s*[\\[【]\\s*[Aa]ndroid\\s*[】\\]]\\s*".toRegex()
         val clickUpTasks = clickUpRepoImpl.fetchTasks(clickUpView.id).filter {
@@ -39,16 +38,18 @@ class ExecutorUpdateTaskAndPrintChangelog(
             it.copy(name = it.name.replace(taskNameReplaceRegex, ""))
         }
 
-        logger.info("UpdateTaskAndPrintChangelog tasks size => ${clickUpTasks.size}")
+        logger.info("${clickUpView.name} has ${clickUpTasks.size} tasks.")
 
         withContext(Dispatchers.IO) {
             clickUpTasks.map {
-                async { clickUpRepoImpl.addCustomField(it.id, targetCustomField.id, tag) }
+                async { clickUpRepoImpl.addCustomField(it.id, ClickUpCustomField.AndroidAppVersion.id, tag) }
             }.awaitAll().mapNotNull { it.resultOrNull() }
             clickUpTasks.map {
                 async { clickUpRepoImpl.updateTask(it.id, targetStatus) }
             }.awaitAll().mapNotNull { it.resultOrNull() }
         }
+
+        val slackUsers = slackRepoImpl.fetchUsers()
 
         val changelog = slackMessagePayloadCreator.createChangelog(
             tag = tag,
@@ -61,8 +62,8 @@ class ExecutorUpdateTaskAndPrintChangelog(
             slackUsers = slackUsers,
         )
         val slackWebhooks = Json.parseToJsonElement(System.getenv(Env.SLACK_WEBHOOKS)).jsonObject
-        val androidCommandWebhook = slackWebhooks["android_command"]?.contentOrNull!!
         val androidChangelogWebhook = slackWebhooks["android_changelog"]?.contentOrNull!!
+        val androidCommandWebhook = slackWebhooks["android_command"]?.contentOrNull!!
         withContext(Dispatchers.IO) {
             slackRepoImpl.respond(
                 webhookUrl = androidChangelogWebhook,

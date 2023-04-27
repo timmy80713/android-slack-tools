@@ -2,19 +2,30 @@ package functions.model.slack
 
 import functions.model.clickup.ClickUpTask
 import kotlinx.serialization.json.*
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 class SlackMessagePayloadCreator {
 
-    companion object {
-        private val notDisplayedInStore = """
-            *不顯示於商店*
-        """.trimIndent()
-        private val blockquoteForPublish = """
-            > Taiwan Google Play 正式發布：
-            > Taiwan X 發布：
-            > Overseas Google Play 正式發布：
-        """.trimIndent()
-    }
+    private val notDisplayedInStore: String
+        get() {
+            return """
+                *不顯示於商店*
+            """.trimIndent()
+        }
+
+    private val publishInfo: String
+        get() {
+            val currentDate = OffsetDateTime.now()
+                .atZoneSameInstant(ZoneId.of("Asia/Taipei"))
+                .format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
+            return """
+                > Taiwan Google Play 正式發布：$currentDate
+                > Taiwan X 發布：$currentDate
+                > Overseas Google Play 正式發布：$currentDate
+            """.trimIndent()
+        }
 
     fun createChangelog(
         tag: String,
@@ -30,7 +41,7 @@ class SlackMessagePayloadCreator {
                     """.trimIndent()
                     generateSlackBlockMarkdown(text)
                 })
-                add(generateSlackBlockSection { generateSlackBlockMarkdown(blockquoteForPublish) })
+                add(generateSlackBlockSection { generateSlackBlockMarkdown(publishInfo) })
                 add(generateSlackBlockSection { generateSlackBlockMarkdown(notDisplayedInStore) })
                 add(
                     generateSlackBlockTasks(
@@ -57,7 +68,7 @@ class SlackMessagePayloadCreator {
                     """.trimIndent()
                     generateSlackBlockMarkdown(text)
                 })
-                add(generateSlackBlockSection { generateSlackBlockMarkdown(blockquoteForPublish) })
+                add(generateSlackBlockSection { generateSlackBlockMarkdown(publishInfo) })
                 add(generateSlackBlockSection { generateSlackBlockMarkdown(notDisplayedInStore) })
                 add(
                     generateSlackBlockTasks(
