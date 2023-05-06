@@ -2,6 +2,7 @@ package functions.repo
 
 import functions.api.ClickUpApiClientImpl
 import functions.model.RequestResult
+import functions.model.clickup.ClickUpSpace
 import functions.model.clickup.ClickUpStatus
 import functions.model.clickup.ClickUpTask
 import functions.model.clickup.request.ClickUpAddCustomFieldRequest
@@ -12,6 +13,18 @@ import kotlinx.coroutines.withContext
 class ClickUpRepoImpl(
     private val clickUpApiClientImpl: ClickUpApiClientImpl,
 ) {
+
+    suspend fun fetchSpaces(teamId: String): List<ClickUpSpace> {
+        return withContext(Dispatchers.IO) {
+            clickUpApiClientImpl.fetchSpaces(teamId = teamId)
+        }.let {
+            when (it) {
+                is RequestResult.Success -> it.result.spaces
+                is RequestResult.Failure -> throw it.error
+            }
+        }
+    }
+
     suspend fun fetchTasks(viewId: String): List<ClickUpTask> {
         val slackUsers = try {
             recursiveFetchTasks(emptyList(), viewId)

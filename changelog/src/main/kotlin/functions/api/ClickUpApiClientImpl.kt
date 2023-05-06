@@ -3,6 +3,7 @@ package functions.api
 import functions.env.Env
 import functions.http.generateHttpClient
 import functions.model.RequestResult
+import functions.model.clickup.ClickUpSpacesResponse
 import functions.model.clickup.ClickUpTasksResponse
 import functions.model.clickup.request.ClickUpAddCustomFieldRequest
 import functions.model.clickup.request.ClickUpUpdateTaskRequest
@@ -19,6 +20,19 @@ class ClickUpApiClientImpl {
             header("Authorization", System.getenv(Env.CLICKUP_API_TOKEN))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
         }
+    }
+
+    suspend fun fetchSpaces(teamId: String): RequestResult<ClickUpSpacesResponse> {
+        val response = try {
+            httpClient.get {
+                url {
+                    path("api", "v2", "team", teamId, "space")
+                }
+            }
+        } catch (e: Exception) {
+            return RequestResult.Failure(e)
+        }
+        return RequestResult.Success(response.body())
     }
 
     suspend fun fetchTasks(viewId: String, page: Int): RequestResult<ClickUpTasksResponse> {

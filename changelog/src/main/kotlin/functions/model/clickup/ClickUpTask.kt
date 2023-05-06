@@ -10,4 +10,5 @@ data class ClickUpTask(
     @SerialName("url") val url: String,
     @SerialName("creator") val creator: ClickUpUser,
     @SerialName("assignees") val assignees: List<ClickUpUser>,
+    @SerialName("space") val space: ClickUpSpace,
 )

@@ -1,6 +1,7 @@
 package functions.executor
 
 import functions.env.Env
+import functions.model.clickup.CLICK_TEAM_ID
 import functions.model.clickup.ClickUpStatus
 import functions.model.clickup.ClickUpView
 import functions.model.contentOrNull
@@ -45,11 +46,16 @@ class ExecutorRegressionFinish(
             }.awaitAll().mapNotNull { it.resultOrNull() }
         }
 
+        val taskGroups = clickUpTasks.groupBy { it.space.id }
+
+        val clickSpaces = clickUpRepoImpl.fetchSpaces(CLICK_TEAM_ID)
+
         val slackUsers = slackRepoImpl.fetchUsers()
 
         val changelog = slackMessagePayloadCreator.createChangelog(
             tag = tag,
-            clickUpTasks = clickUpTasks,
+            spaces = clickSpaces,
+            taskGroups = taskGroups,
             slackUsers = slackUsers,
         )
         val slackWebhooks = Json.parseToJsonElement(System.getenv(Env.SLACK_WEBHOOKS)).jsonObject
