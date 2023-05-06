@@ -56,22 +56,12 @@ class ExecutorProductionHotfix(
             clickUpTasks = clickUpTasks,
             slackUsers = slackUsers,
         )
-        val changelogWithoutUser = slackMessagePayloadCreator.createChangelogWithoutUser(
-            tag = tag,
-            clickUpTasks = clickUpTasks,
-            slackUsers = slackUsers,
-        )
         val slackWebhooks = Json.parseToJsonElement(System.getenv(Env.SLACK_WEBHOOKS)).jsonObject
         val androidChangelogWebhook = slackWebhooks["android_changelog"]?.contentOrNull!!
-        val androidCommandWebhook = slackWebhooks["android_command"]?.contentOrNull!!
         withContext(Dispatchers.IO) {
             slackRepoImpl.respond(
                 webhookUrl = androidChangelogWebhook,
                 requestBody = changelog,
-            )
-            slackRepoImpl.respond(
-                webhookUrl = androidCommandWebhook,
-                requestBody = changelogWithoutUser,
             )
         }
     }
