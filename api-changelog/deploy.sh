@@ -12,6 +12,7 @@ gcloud functions deploy api-changelog \
     --trigger-http \
     --timeout 180s \
     --set-secrets "CLICKUP_API_TOKEN=CLICKUP_API_TOKEN:latest" \
+    --set-secrets "GITHUB_DATA=GITHUB_DATA:latest" \
     --set-secrets "SLACK_API_AUTHORIZATION=SLACK_API_AUTHORIZATION:latest" \
     --set-secrets "SLACK_WEBHOOKS=SLACK_WEBHOOKS:latest"
 

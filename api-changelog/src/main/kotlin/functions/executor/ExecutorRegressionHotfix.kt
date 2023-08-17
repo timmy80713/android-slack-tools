@@ -23,9 +23,10 @@ class ExecutorRegressionHotfix(
         val clickUpView = ClickUpView.RegressionHotfix
         val targetStatus = ClickUpStatus.RegressionTest
 
-        val clickUpTasks = clickUpRepoImpl.fetchTasks(clickUpView.id).filter {
-            it.name.contains("TimmmmmmY", ignoreCase = true)
-        }
+        val clickUpTasks = clickUpRepoImpl.fetchTasks(clickUpView.id)
+            .filter { task ->
+                task.name.contains("TimmmmmmY", ignoreCase = true)
+            }
 
         logger.info("${clickUpView.name} has ${clickUpTasks.size} tasks.")
 

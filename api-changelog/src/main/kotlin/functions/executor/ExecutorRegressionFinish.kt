@@ -31,12 +31,25 @@ class ExecutorRegressionFinish(
         val clickUpView = ClickUpView.RegressionTest
         val targetStatus = ClickUpStatus.Close
 
+        val clickSpaces = clickUpRepoImpl.fetchSpaces(CLICK_TEAM_ID)
+
         val taskNameReplaceRegex = "\\s*[\\[【]\\s*[Aa]ndroid\\s*[】\\]]\\s*".toRegex()
-        val clickUpTasks = clickUpRepoImpl.fetchTasks(clickUpView.id).filter {
-            it.name.contains("TimmmmmmY", ignoreCase = true)
-        }.map {
-            it.copy(name = it.name.replace(taskNameReplaceRegex, ""))
-        }
+        val clickUpTasks = clickUpRepoImpl.fetchTasks(clickUpView.id)
+            .filter { task ->
+                task.name.contains("TimmmmmmY", ignoreCase = true)
+            }
+            .map { task ->
+                task.copy(name = task.name.replace(taskNameReplaceRegex, ""))
+            }
+            .map { task ->
+                val space = clickSpaces.find { space -> space.id == task.space.id }
+                if (space != null) {
+                    task.copy(space = space)
+                } else {
+                    task
+                }
+            }
+            .sortedBy { it.space.name }
 
         logger.info("${clickUpView.name} has ${clickUpTasks.size} tasks.")
 
@@ -47,8 +60,6 @@ class ExecutorRegressionFinish(
         }
 
         val taskGroups = clickUpTasks.groupBy { it.space.id }
-
-        val clickSpaces = clickUpRepoImpl.fetchSpaces(CLICK_TEAM_ID)
 
         val slackUsers = slackRepoImpl.fetchUsers()
 

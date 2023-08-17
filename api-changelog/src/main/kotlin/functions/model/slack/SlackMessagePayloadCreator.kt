@@ -1,7 +1,9 @@
 package functions.model.slack
 
+import functions.env.Env
 import functions.model.clickup.ClickUpSpace
 import functions.model.clickup.ClickUpTask
+import functions.model.contentOrNull
 import kotlinx.serialization.json.*
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -15,25 +17,31 @@ class SlackMessagePayloadCreator {
         taskGroups: Map<String, List<ClickUpTask>>,
         slackUsers: List<SlackUser>,
     ): JsonObject {
+        val githubData = Json.parseToJsonElement(System.getenv(Env.GITHUB_DATA)).jsonObject
+        val owner = githubData["owner"]?.contentOrNull!!
+        val repo = githubData["repo"]?.contentOrNull!!
+
         return buildJsonObject {
             put("response_type", "in_channel")
             put("blocks", buildJsonArray {
-                add(generateSlackBlockHeader { generateSlackBlockPlainText("A new version has been published.") })
-                add(generateSlackBlockSection {
-                    val currentDate = OffsetDateTime.now().atZoneSameInstant(ZoneId.of("Asia/Taipei"))
-                        .format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
-                    val text = """
-                        > Version : *${tag}*
-                        > Date : *${currentDate}*
-                    """.trimIndent()
-                    generateSlackBlockMarkdown(text)
+                add(generateSlackBlockSection { generateSlackBlockMarkdown("*The latest version of the Android app has been released on Google Play.*") })
+                add(generateSlackBlockContext {
+                    buildJsonArray {
+                        val currentDate = OffsetDateTime.now().atZoneSameInstant(ZoneId.of("Asia/Taipei"))
+                            .format(DateTimeFormatter.ofPattern("yyyy/MM/dd"))
+                        val text = """
+                            > GitHub : https://github.com/${owner}/${repo}/releases/tag/${tag}
+                            > Version : *${tag}*
+                            > Date : *${currentDate}*
+                        """.trimIndent()
+                        add(generateSlackBlockMarkdown(text))
+                    }
                 })
 
-                add(generateSlackBlockHeader { generateSlackBlockPlainText("What changes are included in this version?") })
+                add(generateSlackBlockSection { generateSlackBlockMarkdown("*What changes are included in this version?*") })
                 val taskGroupsIterator = taskGroups.iterator()
                 while (taskGroupsIterator.hasNext()) {
-                    val map = taskGroupsIterator.next()
-                    val (spaceId, tasks) = map
+                    val (spaceId, tasks) = taskGroupsIterator.next()
                     generateChanges(spaces, spaceId, tasks, slackUsers).forEach { add(it) }
                     if (taskGroupsIterator.hasNext()) {
                         add(generateSlackBlockDivider())
@@ -68,21 +76,26 @@ class SlackMessagePayloadCreator {
         }
 
         tasks.mapIndexed { index, task ->
-            generateSlackBlockSection {
-                val creator = slackUsers
-                    .filter { slackUser -> slackUser.profile.email == task.creator.email }
-                    .joinToString { slackUser -> "<@${slackUser.id}>" }
+            generateSlackBlockContext {
+                buildJsonArray {
+                    val creator = slackUsers
+                        .filter { slackUser -> slackUser.profile.email == task.creator.email }
+                        .joinToString { slackUser -> "<@${slackUser.id}>" }
 
-                val assignees = task.assignees
-                    .mapNotNull { clickUpUser -> slackUsers.find { slackUser -> slackUser.profile.email == clickUpUser.email } }
-                    .joinToString { slackUser -> "<@${slackUser.id}>" }
+                    val assignees = task.assignees
+                        .mapNotNull { clickUpUser -> slackUsers.find { slackUser -> slackUser.profile.email == clickUpUser.email } }
+                        .joinToString { slackUser -> "<@${slackUser.id}>" }
 
-                val text = """
-                    ><${task.url}|${task.name}>
-                    > Creator : $creator
-                    > Assignees : $assignees
-                """.trimIndent()
-                generateSlackBlockMarkdown(text)
+                    val name = task.name
+                        .replace(">", "&gt;")
+                        .replace("<", "&lt;")
+
+                    val text = """
+                        ><${task.url}|${name}>
+                        > Creator : $creator｜Assignees : $assignees
+                    """.trimIndent()
+                    add(generateSlackBlockMarkdown(text))
+                }
             }
         }.let {
             jsonObjects.addAll(it)
