@@ -9,7 +9,7 @@ gcloud functions deploy pubsub-ci \
     --runtime java11 \
     --entry-point functions.App \
     --source build/libs \
-    --trigger-topic "slack-tools.ci" \
+    --trigger-topic "slack-command.ci" \
     --timeout 180s \
     --set-secrets "BITRISE_BUILD_TRIGGER_TOKEN=BITRISE_BUILD_TRIGGER_TOKEN:latest"
 

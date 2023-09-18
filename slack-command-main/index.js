@@ -153,7 +153,7 @@ function handleRequest(req, res, formattedRequestBody) {
     subsequentUrlPath = `/${slicedGroup.join("/")}`;
   }
 
-  const topicName = `slack-tools.${featureName}`;
+  const topicName = `slack-command.${featureName}`;
   const messagePayload = {
     teamId: teamId,
     userId: userId,
