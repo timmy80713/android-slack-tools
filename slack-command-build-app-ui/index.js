@@ -4,7 +4,7 @@ const axios = require("axios");
 const functions = require("@google-cloud/functions-framework");
 const slack = require("./slack");
 
-functions.http("presentBuildAppUi", (req, res) => {
+functions.http("main", (req, res) => {
     console.log("The service has started.");
     console.log("Request from ==> ", req.body.team_domain, req.body.channel_name, req.body.user_name)
     console.log("Command ==> ", req.body.command)
