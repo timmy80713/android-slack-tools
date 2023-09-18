@@ -8,7 +8,7 @@ const slack = require("./slack");
 
 const pubsub = new PubSub();
 
-functions.http("useTool", (req, res) => {
+functions.http("main", (req, res) => {
   console.log("The service has started.");
 
   try {
