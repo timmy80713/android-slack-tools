@@ -2,7 +2,7 @@
 ./gradlew build
 
 REGION=asia-east1
-gcloud functions deploy slack-tools-changelog \
+gcloud functions deploy api-changelog \
     --gen2 \
     --memory 256MB \
     --region ${REGION} \
@@ -16,7 +16,7 @@ gcloud functions deploy slack-tools-changelog \
     --set-secrets "SLACK_WEBHOOKS=SLACK_WEBHOOKS:latest"
 
 REPOSITORY=gcf-artifacts
-PACKAGE=slack--tools--changelog
+PACKAGE=api--changelog
 for VERSION in $(gcloud artifacts versions list --repository=${REPOSITORY} --location=${REGION} --package=${PACKAGE} --format='value(name)'); do
     gcloud artifacts versions delete ${VERSION} --quiet --repository=${REPOSITORY} --location=${REGION} --package=${PACKAGE}
 done
