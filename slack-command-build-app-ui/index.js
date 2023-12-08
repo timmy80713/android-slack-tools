@@ -93,7 +93,7 @@ function generateBranchBlock(branches) {
     const staticSelectBranchOptions = branches.map((branch) => ({
         text: {
             type: "plain_text",
-            text: `${branch.name}`
+            text: branch.name.length > 70 ? `${branch.name.slice(0, 70)}...` : branch.name
         },
         value: `${branch.name}`
     }));
