@@ -48,7 +48,8 @@ class App : CloudEventsFunction {
                 Whitelist.ReleaseRegressionStart,
                 Whitelist.ReleaseRegressionHotfix,
                 Whitelist.ReleaseRegressionFinish,
-                Whitelist.ReleaseProductionHotfix -> ExecutorDeploy(messagePayload, formattedWorkflowId)
+                Whitelist.ReleaseProductionHotfix,
+                Whitelist.ReleaseProductionFinish -> ExecutorDeploy(messagePayload, formattedWorkflowId)
             }
             logger.info("The executor is ${executor.javaClass.simpleName}.")
 
