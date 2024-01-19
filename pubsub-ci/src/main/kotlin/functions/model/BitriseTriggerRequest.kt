@@ -49,6 +49,10 @@ data class BitriseTriggerRequest(
                 fun increaseVersionType(type: String) = apply {
                     map += "INCREASE_VERSION_TYPE" to type
                 }
+
+                fun notifyQualityAssuranceTeamOrNot(notify: Boolean) = apply {
+                    map += "NOTIFY_QUALITY_ASSURANCE_TEAM_OR_NOT" to (if (notify) 1 else 0).toString()
+                }
             }
         }
     }

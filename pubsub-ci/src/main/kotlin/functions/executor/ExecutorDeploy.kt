@@ -3,6 +3,7 @@ package functions.executor
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintHelpMessage
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import functions.api.BitriseApiStation
 import functions.api.SlackApiStation
@@ -30,6 +31,11 @@ class ExecutorDeploy(
                 "-t", "--type",
                 help = "The version name format is [major.minor.patch], and the type is used to determine which type of version name to adjust. Default: $DEFAULT_TYPE",
             ).default(DEFAULT_TYPE)
+
+            val notify by option(
+                "-n", "--notify",
+                help = "Notify the Quality Assurance Team when the deploy is finished. Default: false"
+            ).flag(default = false)
 
             override fun run() {}
         }
@@ -63,7 +69,9 @@ class ExecutorDeploy(
                     buildParams = BitriseTriggerRequest.BuildParams(
                         workflowId = workflowId,
                         environments = BitriseTriggerRequest.BuildParams.Environment.Builder()
-                            .increaseVersionType(command.type).build(),
+                            .increaseVersionType(command.type)
+                            .notifyQualityAssuranceTeamOrNot(command.notify)
+                            .build(),
                     ),
                     triggeredBy = "${payload.userName} used Slack slash command to create a trigger url.",
                 ),
