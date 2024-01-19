@@ -5,17 +5,17 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class Workflow {
-    @SerialName("regression_start")
-    RegressionStart,
+    @SerialName("release_regression_start")
+    ReleaseRegressionStart,
 
-    @SerialName("regression_hotfix")
-    RegressionHotfix,
+    @SerialName("release_regression_hotfix")
+    ReleaseRegressionHotfix,
 
-    @SerialName("regression_finish")
-    RegressionFinish,
+    @SerialName("release_regression_finish")
+    ReleaseRegressionFinish,
 
-    @SerialName("production_hotfix")
-    ProductionHotfix,
+    @SerialName("release_production_hotfix")
+    ReleaseProductionHotfix,
 
     Unknown,
 }

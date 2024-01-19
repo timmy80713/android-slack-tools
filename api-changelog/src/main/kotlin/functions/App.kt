@@ -38,21 +38,21 @@ class App : HttpFunction {
         }
 
         val executor = when (changelogRequestBody.workflow) {
-            Workflow.RegressionStart -> {
+            Workflow.ReleaseRegressionStart -> {
                 ExecutorRegressionStart(
                     tag = changelogRequestBody.tag,
                     clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
                 )
             }
 
-            Workflow.RegressionHotfix -> {
+            Workflow.ReleaseRegressionHotfix -> {
                 ExecutorRegressionHotfix(
                     tag = changelogRequestBody.tag,
                     clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
                 )
             }
 
-            Workflow.RegressionFinish -> {
+            Workflow.ReleaseRegressionFinish -> {
                 ExecutorRegressionFinish(
                     tag = changelogRequestBody.tag,
                     clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
@@ -61,7 +61,7 @@ class App : HttpFunction {
                 )
             }
 
-            Workflow.ProductionHotfix -> {
+            Workflow.ReleaseProductionHotfix -> {
                 ExecutorProductionHotfix(
                     tag = changelogRequestBody.tag,
                     clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
