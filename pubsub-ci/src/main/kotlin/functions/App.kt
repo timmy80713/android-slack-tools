@@ -44,11 +44,11 @@ class App : CloudEventsFunction {
             val unformattedWorkflowId = matchResult.groupValues[1]
             val formattedWorkflowId = unformattedWorkflowId.replace("-", "_")
             val executor = when (Whitelist.values().first { it.value == unformattedWorkflowId }) {
-                Whitelist.Qa -> ExecutorBuildApp(messagePayload, formattedWorkflowId)
-                Whitelist.RegressionStart,
-                Whitelist.RegressionHotfix,
-                Whitelist.RegressionFinish,
-                Whitelist.ProductionHotfix -> ExecutorDeploy(messagePayload, formattedWorkflowId)
+                Whitelist.DevelopmentQa -> ExecutorBuildApp(messagePayload, formattedWorkflowId)
+                Whitelist.ReleaseRegressionStart,
+                Whitelist.ReleaseRegressionHotfix,
+                Whitelist.ReleaseRegressionFinish,
+                Whitelist.ReleaseProductionHotfix -> ExecutorDeploy(messagePayload, formattedWorkflowId)
             }
             logger.info("The executor is ${executor.javaClass.simpleName}.")
 

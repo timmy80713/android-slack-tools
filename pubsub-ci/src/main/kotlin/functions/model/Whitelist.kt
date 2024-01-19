@@ -1,11 +1,11 @@
 package functions.model
 
 enum class Whitelist(val value: String) {
-    Qa("qa"),
-    RegressionStart("regression-start"),
-    RegressionHotfix("regression-hotfix"),
-    RegressionFinish("regression-finish"),
-    ProductionHotfix("production-hotfix"),
+    DevelopmentQa("development-qa"),
+    ReleaseRegressionStart("release-regression-start"),
+    ReleaseRegressionHotfix("release-regression-hotfix"),
+    ReleaseRegressionFinish("release-regression-finish"),
+    ReleaseProductionHotfix("release-production-hotfix"),
 }
 
 val Whitelist.toRegex get() = Regex("^/(${this.value})$")
