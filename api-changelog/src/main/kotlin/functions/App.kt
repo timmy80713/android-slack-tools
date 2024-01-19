@@ -5,10 +5,7 @@ import com.google.cloud.functions.HttpRequest
 import com.google.cloud.functions.HttpResponse
 import functions.api.ClickUpApiClientImpl
 import functions.api.SlackApiClientImpl
-import functions.executor.ExecutorProductionHotfix
-import functions.executor.ExecutorRegressionFinish
-import functions.executor.ExecutorRegressionHotfix
-import functions.executor.ExecutorRegressionStart
+import functions.executor.*
 import functions.model.ChangelogRequestBody
 import functions.model.Workflow
 import functions.model.slack.SlackMessagePayloadCreator
@@ -61,8 +58,8 @@ class App : HttpFunction {
                 )
             }
 
-            Workflow.ReleaseProductionHotfix -> {
-                ExecutorProductionHotfix(
+            Workflow.ReleaseProductionFinish -> {
+                ExecutorProductionFinish(
                     tag = changelogRequestBody.tag,
                     clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
                     slackRepoImpl = SlackRepoImpl(SlackApiClientImpl()),

@@ -14,8 +14,8 @@ enum class Workflow {
     @SerialName("release_regression_finish")
     ReleaseRegressionFinish,
 
-    @SerialName("release_production_hotfix")
-    ReleaseProductionHotfix,
+    @SerialName("release_production_finish")
+    ReleaseProductionFinish,
 
     Unknown,
 }

@@ -18,14 +18,14 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import java.util.logging.Logger
 
-class ExecutorProductionHotfix(
+class ExecutorProductionFinish(
     private val tag: String,
     private val clickUpRepoImpl: ClickUpRepoImpl,
     private val slackRepoImpl: SlackRepoImpl,
     private val slackMessagePayloadCreator: SlackMessagePayloadCreator,
 ) : Executor {
 
-    private val logger = Logger.getLogger(ExecutorProductionHotfix::class.java.name)
+    private val logger = Logger.getLogger(ExecutorProductionFinish::class.java.name)
 
     override suspend fun execute() {
 
