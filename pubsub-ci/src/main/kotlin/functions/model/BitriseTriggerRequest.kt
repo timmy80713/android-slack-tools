@@ -18,6 +18,8 @@ data class BitriseTriggerRequest(
     @Serializable
     data class BuildParams(
         @SerialName("branch") val branch: String? = null,
+        @SerialName("tag") val tag: String? = null,
+        @SerialName("commit_hash") val commitHash: String? = null,
         @SerialName("workflow_id") val workflowId: String,
         @SerialName("environments") val environments: List<Environment>? = null,
     ) {

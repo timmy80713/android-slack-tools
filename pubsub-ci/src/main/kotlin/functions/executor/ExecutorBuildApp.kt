@@ -27,7 +27,17 @@ class ExecutorBuildApp(
             val branch by option(
                 "-b", "--branch",
                 help = "The Git branch to build.",
-            ).required()
+            )
+
+            val tag by option(
+                "-t", "--tag",
+                help = "The Git tag to build.",
+            )
+
+            val commitHash by option(
+                "-h", "--hash",
+                help = "The Git commit hash to build.",
+            )
 
             val variants by option(
                 "-v", "--variants",
@@ -70,6 +80,8 @@ class ExecutorBuildApp(
                     ),
                     buildParams = BitriseTriggerRequest.BuildParams(
                         branch = command.branch,
+                        tag = command.tag,
+                        commitHash = command.commitHash,
                         workflowId = workflowId,
                         environments = BitriseTriggerRequest.BuildParams.Environment.Builder()
                             .buildVariants(command.variants)
@@ -86,11 +98,22 @@ class ExecutorBuildApp(
                     triggeredBy = "${payload.userName} used Slack slash command to create a trigger url.",
                 ),
             ).doOnSuccess { response ->
+                val target = if (command.commitHash != null) {
+                    "Git commit hash: `${command.commitHash}`"
+                } else if (command.tag != null) {
+                    "Git tag: `${command.tag}`"
+                } else {
+                    if (command.branch == null) {
+                        "Git branch: `Bitrise default branch`"
+                    } else {
+                        "Git branch: `${command.branch}`"
+                    }
+                }
                 SlackApiStation.respondInChannel(
                     responseUrl = payload.responseUrl,
                     text = """
                         <@${payload.userId}> triggered <${response.buildUrl}|Bitrise build #${response.buildNumber}>.
-                        > Git branch: `${command.branch}`
+                        > ${target}
                         > Workflow: `${response.triggeredWorkflow}`
                         > Variants: ${command.variants.joinToString(" ") { "`$it`" }}
                     """.trimIndent(),
