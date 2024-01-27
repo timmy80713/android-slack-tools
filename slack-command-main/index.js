@@ -53,9 +53,15 @@ function isSubmitAction(payload) {
 
 function convertPayloadToFormattedRequestBody(payload) {
   const values = payload.state.values;
-  const branchOption = values.block_id_branch.action_id_branch.selected_option;
-  const branch = branchOption ? branchOption.value || "" : "";
-  const branchArg = branch ? `-b ${branch} ` : "";
+  const gitBranchOption = values.block_id_git_branch.action_id_git_branch.selected_option;
+  const gitBranch = gitBranchOption ? gitBranchOption.value || "" : "";
+  const gitBranchArg = gitBranch ? `-b ${gitBranch} ` : "";
+
+  const gitTag = values.block_id_git_tag.action_id_git_tag.value || "";
+  const gitTagArg = gitTag ? `-t "${gitTag}" ` : "";
+
+  const gitCommitHash = values.block_id_git_commit_hash.action_id_git_commit_hash.value || "";
+  const gitCommitHashArg = gitCommitHash ? `-h "${gitCommitHash}" ` : "";
 
   const variants = [];
   for (let i = 1; i < 4; i++) {
@@ -82,7 +88,7 @@ function convertPayloadToFormattedRequestBody(payload) {
   const message = values.block_id_message.action_id_message.value || "";
   const messageArg = message ? `-m "${message}"` : "";
 
-  const text = branchArg + variantStringArg + messageArg;
+  const text = gitBranchArg + gitTagArg + gitCommitHashArg + variantStringArg + messageArg;
   console.log(text);
 
   return {
