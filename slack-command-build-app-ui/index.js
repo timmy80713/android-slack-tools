@@ -79,17 +79,21 @@ function fetchBranches(page, branches = []) {
 }
 
 function generateSlackPayload(branches) {
-    const branchBlock = generateBranchBlock(branches);
+    const gitBranchBlock = generateGitBranchBlock(branches);
+    const gitTagBlock = generateGitTagBlock();
+    const gitCommitHashBlock = generateGitCommitHashBlock();
     const variantBlocks = generateVariantBlocks();
     const messageBlock = generateMessageBlock();
     const submitBlock = generateSubmitBlock();
-    const slackBlocks = [branchBlock]
+    const slackBlocks = [gitBranchBlock]
+        .concat([gitTagBlock])
+        .concat([gitCommitHashBlock])
         .concat(variantBlocks)
         .concat([messageBlock])
         .concat([submitBlock]);
     return { blocks: slackBlocks };
 }
-function generateBranchBlock(branches) {
+function generateGitBranchBlock(branches) {
     const staticSelectBranchOptions = branches.map((branch) => ({
         text: {
             type: "plain_text",
@@ -103,16 +107,54 @@ function generateBranchBlock(branches) {
             type: "static_select",
             placeholder: {
                 type: "plain_text",
-                text: "Select a branch"
+                text: "Select a Git branch"
             },
             options: staticSelectBranchOptions,
-            action_id: "action_id_branch"
+            action_id: "action_id_git_branch"
         },
         label: {
             type: "plain_text",
-            text: "Branch"
+            text: "Git branch"
         },
-        block_id: "block_id_branch"
+        block_id: "block_id_git_branch"
+    };
+}
+
+function generateGitTagBlock() {
+    return {
+        type: "input",
+        element: {
+            type: "plain_text_input",
+            placeholder: {
+                type: "plain_text",
+                text: "e.g. 1.0.0"
+            },
+            action_id: "action_id_git_tag"
+        },
+        label: {
+            type: "plain_text",
+            text: "Git tag (Optional)"
+        },
+        block_id: "block_id_git_tag"
+    };
+}
+
+function generateGitCommitHashBlock() {
+    return {
+        type: "input",
+        element: {
+            type: "plain_text_input",
+            placeholder: {
+                type: "plain_text",
+                text: "e.g. a7de8e3606c1ea8961b3497c862dc33c641d65b5"
+            },
+            action_id: "action_id_git_commit_hash"
+        },
+        label: {
+            type: "plain_text",
+            text: "Git commit hash (Optional)"
+        },
+        block_id: "block_id_git_commit_hash"
     };
 }
 
