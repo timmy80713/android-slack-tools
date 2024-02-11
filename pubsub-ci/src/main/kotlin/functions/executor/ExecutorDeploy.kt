@@ -8,13 +8,12 @@ import functions.api.BitriseApiStation
 import functions.api.SlackApiStation
 import functions.cli.tokenizeArgs
 import functions.env.Env
-import functions.model.BitriseTriggerRequest
-import functions.model.PubSubMessagePayload
-import functions.model.doOnFailure
-import functions.model.doOnSuccess
+import functions.model.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 
 class ExecutorDeploy(
     private val payload: PubSubMessagePayload,
@@ -69,8 +68,10 @@ class ExecutorDeploy(
                     triggeredBy = "${payload.userName} used Slack slash command to create a trigger url.",
                 ),
             ).doOnSuccess { response ->
+                val slackWebhooks = Json.parseToJsonElement(System.getenv(Env.SLACK_WEBHOOKS)).jsonObject
+                val androidCommandWebhook = slackWebhooks["android_command"]?.contentOrNull!!
                 SlackApiStation.respondInChannel(
-                    responseUrl = payload.responseUrl,
+                    responseUrl = androidCommandWebhook,
                     text = """
                         <@${payload.userId}> triggered <${response.buildUrl}|Bitrise build #${response.buildNumber}>.
                         > Workflow: `${response.triggeredWorkflow}`

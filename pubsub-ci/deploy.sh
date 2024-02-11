@@ -11,7 +11,8 @@ gcloud functions deploy pubsub-ci \
     --source build/libs \
     --trigger-topic "slack-command.ci" \
     --timeout 180s \
-    --set-secrets "BITRISE_BUILD_TRIGGER_TOKEN=BITRISE_BUILD_TRIGGER_TOKEN:latest"
+    --set-secrets "BITRISE_BUILD_TRIGGER_TOKEN=BITRISE_BUILD_TRIGGER_TOKEN:latest" \
+    --set-secrets "SLACK_WEBHOOKS=SLACK_WEBHOOKS:latest"
 
 REPOSITORY=gcf-artifacts
 PACKAGE=pubsub--ci
