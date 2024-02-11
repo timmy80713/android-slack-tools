@@ -2,6 +2,7 @@ package functions.executor
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.PrintHelpMessage
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.options.split
@@ -43,10 +44,10 @@ class ExecutorBuildApp(
                 help = "Variants to build e.g. taiwanDevDebug. Select multiple with delimiter ','.",
             ).split(",").required()
 
-            val appendMessage by option(
+            val message by option(
                 "-m", "--message",
-                help = "The default message will be \"${createDefaultMessage()}\", followed by your message.",
-            )
+                help = "Message will be appended on the next line after the section.",
+            ).default("")
 
             override fun run() {}
         }
@@ -84,14 +85,8 @@ class ExecutorBuildApp(
                         workflowId = workflowId,
                         environments = BitriseTriggerRequest.BuildParams.Environment.Builder()
                             .buildVariants(command.variants)
-                            .slackMessage(
-                                StringBuilder(createDefaultMessage("<@${payload.userId}>"))
-                                    .append(command.appendMessage
-                                        ?.replace("\\n", "\n")
-                                        ?.let { "\n${it}" } ?: ""
-                                    )
-                                    .toString()
-                            )
+                            .slackMessage(command.message)
+                            .triggeredUser(payload.userId)
                             .build(),
                     ),
                     triggeredBy = "${payload.userName} used Slack slash command to create a trigger url.",
@@ -113,7 +108,7 @@ class ExecutorBuildApp(
                 SlackApiStation.respondInChannel(
                     responseUrl = androidCommandWebhook,
                     text = """
-                        <@${payload.userId}> triggered <${response.buildUrl}|Bitrise build #${response.buildNumber}>.
+                        <@${payload.userId}> triggered <${response.buildUrl}|Build #${response.buildNumber}>.
                         > ${target}
                         > Workflow: `${response.triggeredWorkflow}`
                         > Variants: ${command.variants.joinToString(" ") { "`$it`" }}
@@ -127,6 +122,4 @@ class ExecutorBuildApp(
             }
         }
     }
-
-    private fun createDefaultMessage(authorName: String = "<User ID>") = "Build triggered by $authorName."
 }

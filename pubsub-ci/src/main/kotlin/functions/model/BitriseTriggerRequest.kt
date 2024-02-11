@@ -35,11 +35,15 @@ data class BitriseTriggerRequest(
                 fun build() = map.map { Environment(mappedTo = it.key, value = it.value) }
 
                 fun buildVariants(buildVariants: List<String>) = apply {
-                    map += "QA_BUILD_VARIANTS" to buildVariants.joinToString("\\n")
+                    map += "QA_BUILD_VARIANTS" to buildVariants.joinToString(",")
                 }
 
                 fun slackMessage(slackMessage: String) = apply {
                     map += "QA_SLACK_MESSAGE" to slackMessage
+                }
+
+                fun triggeredUser(userId: String) = apply {
+                    map += "QA_TRIGGERED_USER" to userId
                 }
 
                 fun increaseVersionType(type: String) = apply {
