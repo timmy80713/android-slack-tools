@@ -25,10 +25,10 @@ class SlackApiClientImpl {
                     protocol = URLProtocol.HTTPS
                     host = "slack.com"
                     path("api", "users.list")
-                    header("Authorization", System.getenv(Env.SLACK_API_AUTHORIZATION))
-                    if (cursor != null) {
-                        parameter("cursor", cursor)
-                    }
+                }
+                header("Authorization", System.getenv(Env.SLACK_API_AUTHORIZATION))
+                if (cursor != null) {
+                    parameter("cursor", cursor)
                 }
             }
         } catch (e: Exception) {

@@ -16,18 +16,19 @@ class ClickUpApiClientImpl {
 
     private val httpClient = generateHttpClient {
         it.defaultRequest {
-            url("https://api.clickup.com")
-            header("Authorization", System.getenv(Env.CLICKUP_API_TOKEN))
+            url {
+                protocol = URLProtocol.HTTPS
+                host = "api.clickup.com"
+            }
             header(HttpHeaders.ContentType, ContentType.Application.Json)
+            header("Authorization", System.getenv(Env.CLICKUP_API_TOKEN))
         }
     }
 
     suspend fun fetchSpaces(teamId: String): RequestResult<ClickUpSpacesResponse> {
         val response = try {
             httpClient.get {
-                url {
-                    path("api", "v2", "team", teamId, "space")
-                }
+                url { path("api", "v2", "team", teamId, "space") }
             }
         } catch (e: Exception) {
             return RequestResult.Failure(e)
@@ -38,10 +39,8 @@ class ClickUpApiClientImpl {
     suspend fun fetchTasks(viewId: String, page: Int): RequestResult<ClickUpTasksResponse> {
         val response = try {
             httpClient.get {
-                url {
-                    path("api", "v2", "view", viewId, "task")
-                    parameter("page", page)
-                }
+                url { path("api", "v2", "view", viewId, "task") }
+                parameter("page", page)
             }
         } catch (e: Exception) {
             return RequestResult.Failure(e)
@@ -56,10 +55,8 @@ class ClickUpApiClientImpl {
     ): RequestResult<Unit> {
         val response = try {
             httpClient.post {
-                url {
-                    path("api", "v2", "task", taskId, "field", fieldId)
-                    setBody(requestBody)
-                }
+                url { path("api", "v2", "task", taskId, "field", fieldId) }
+                setBody(requestBody)
             }
         } catch (e: Exception) {
             return RequestResult.Failure(e)
@@ -73,10 +70,8 @@ class ClickUpApiClientImpl {
     ): RequestResult<Unit> {
         val response = try {
             httpClient.put {
-                url {
-                    path("api", "v2", "task", taskId)
-                    setBody(requestBody)
-                }
+                url { path("api", "v2", "task", taskId) }
+                setBody(requestBody)
             }
         } catch (e: Exception) {
             return RequestResult.Failure(e)
