@@ -3,9 +3,9 @@ rm -rf .idea/
 REGION=asia-east1
 gcloud functions deploy slack-command-build-app-ui \
     --gen2 \
-    --memory 256MB \
+    --memory 16GiB \
     --region ${REGION} \
-    --runtime nodejs18 \
+    --runtime nodejs20 \
     --entry-point main \
     --source . \
     --trigger-http \
