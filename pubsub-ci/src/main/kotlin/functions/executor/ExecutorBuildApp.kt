@@ -1,18 +1,24 @@
 package functions.executor
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.core.PrintHelpMessage
+import com.github.ajalt.clikt.core.CliktError
+import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.options.split
-import functions.api.BitriseApiStation
-import functions.api.SlackApiStation
+import com.github.ajalt.mordant.rendering.Theme
+import com.github.ajalt.mordant.terminal.Terminal
 import functions.cli.tokenizeArgs
 import functions.env.Env
-import functions.model.*
+import functions.model.PubSubMessagePayload
+import functions.model.bitrise.BitriseTriggerRequest
+import functions.model.contentOrNull
+import functions.model.doOnFailure
+import functions.model.doOnSuccess
+import functions.repo.BitriseRepoImpl
+import functions.repo.SlackRepoImpl
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -20,10 +26,19 @@ import kotlinx.serialization.json.jsonObject
 class ExecutorBuildApp(
     private val payload: PubSubMessagePayload,
     private val workflowId: String,
+    private val bitriseRepoImpl: BitriseRepoImpl,
+    private val slackRepoImpl: SlackRepoImpl,
 ) : Executor {
 
     override suspend fun execute() {
         val command = object : CliktCommand() {
+
+            init {
+                context {
+                    terminal = Terminal(theme = Theme.Plain)
+                }
+            }
+
             val branch by option(
                 "-b", "--branch",
                 help = "The Git branch to build.",
@@ -54,27 +69,24 @@ class ExecutorBuildApp(
         try {
             command.parse(payload.text.tokenizeArgs())
         } catch (e: Exception) {
-            if (e is PrintHelpMessage) {
-                runBlocking {
-                    SlackApiStation.respondEphemeral(
-                        responseUrl = payload.responseUrl,
-                        text = "```\n${e.command.getFormattedHelp()}\n```",
-                    )
-                }
+            e.printStackTrace()
+            if (e is CliktError) {
+                slackRepoImpl.respondEphemeral(
+                    webhookUrl = payload.responseUrl,
+                    text = "```\n${command.getFormattedHelp(e)}\n```"
+                )
             } else {
-                runBlocking {
-                    SlackApiStation.respondEphemeral(
-                        responseUrl = payload.responseUrl,
-                        text = "${e.message}. Use `--help` to see a list of all options.",
-                    )
-                }
+                slackRepoImpl.respondEphemeral(
+                    webhookUrl = payload.responseUrl,
+                    text = "Unknown exception, ${e.message}",
+                )
             }
             return
         }
 
         withContext(Dispatchers.IO) {
-            BitriseApiStation.triggerBuild(
-                body = BitriseTriggerRequest(
+            bitriseRepoImpl.triggerBuild(
+                requestBody = BitriseTriggerRequest(
                     hookInfo = BitriseTriggerRequest.HookInfo(
                         buildTriggerToken = System.getenv(Env.BITRISE_BUILD_TRIGGER_TOKEN),
                     ),
@@ -105,8 +117,8 @@ class ExecutorBuildApp(
                 }
                 val slackWebhooks = Json.parseToJsonElement(System.getenv(Env.SLACK_WEBHOOKS)).jsonObject
                 val androidCommandWebhook = slackWebhooks["android_command"]?.contentOrNull!!
-                SlackApiStation.respondInChannel(
-                    responseUrl = androidCommandWebhook,
+                slackRepoImpl.respondInChannel(
+                    webhookUrl = androidCommandWebhook,
                     text = """
                         <@${payload.userId}> triggered <${response.buildUrl}|Build #${response.buildNumber}>.
                         > ${target}
@@ -115,8 +127,8 @@ class ExecutorBuildApp(
                     """.trimIndent(),
                 )
             }.doOnFailure {
-                SlackApiStation.respondEphemeral(
-                    responseUrl = payload.responseUrl,
+                slackRepoImpl.respondEphemeral(
+                    webhookUrl = payload.responseUrl,
                     text = "Bitrise responded with error: ```${it.message}```",
                 )
             }

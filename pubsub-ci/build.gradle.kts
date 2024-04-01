@@ -1,8 +1,8 @@
 plugins {
     application
-    id("com.github.johnrengelman.shadow") version "7.1.2"
-    kotlin("jvm") version "1.7.20"
-    kotlin("plugin.serialization") version "1.7.20"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+    kotlin("jvm") version "1.9.23"
+    kotlin("plugin.serialization") version "1.9.23"
 }
 
 repositories {
@@ -13,18 +13,18 @@ val invoker by configurations.creating
 
 dependencies {
     // Jetbrains
-    implementation("io.ktor:ktor-client-core:2.2.4")
-    implementation("io.ktor:ktor-client-cio:2.2.4")
-    implementation("io.ktor:ktor-client-content-negotiation:2.2.4")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.4")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation("io.ktor:ktor-client-core:2.3.9")
+    implementation("io.ktor:ktor-client-cio:2.3.9")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.9")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.9")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
     // Google
-    implementation("com.google.cloud.functions:functions-framework-api:1.0.4")
-    invoker("com.google.cloud.functions.invoker:java-function-invoker:1.2.0")
+    implementation("com.google.cloud.functions:functions-framework-api:1.1.0")
+    invoker("com.google.cloud.functions.invoker:java-function-invoker:1.3.1")
 
     // Clikt
-    implementation("com.github.ajalt.clikt:clikt:3.5.2")
+    implementation("com.github.ajalt.clikt:clikt:4.3.0")
 }
 
 

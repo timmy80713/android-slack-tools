@@ -4,9 +4,9 @@
 REGION=asia-east1
 gcloud functions deploy pubsub-ci \
     --gen2 \
-    --memory 256MB \
+    --memory 16GiB \
     --region ${REGION} \
-    --runtime java11 \
+    --runtime java17 \
     --entry-point functions.App \
     --source build/libs \
     --trigger-topic "slack-command.ci" \

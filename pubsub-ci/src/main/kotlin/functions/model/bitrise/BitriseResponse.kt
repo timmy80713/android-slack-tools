@@ -1,4 +1,4 @@
-package functions.model
+package functions.model.bitrise
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
