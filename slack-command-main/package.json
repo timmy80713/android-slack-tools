@@ -2,9 +2,9 @@
   "name": "android-slack-tools-main-nodejs",
   "version": "0.0.1",
   "dependencies": {
-    "@google-cloud/functions-framework": "^3.1.0",
-    "@google-cloud/pubsub": "^3.4.1",
+    "@google-cloud/functions-framework": "^3.3.0",
+    "@google-cloud/pubsub": "^4.3.3",
     "@slack/events-api": "^3.0.1",
-    "axios": "^1.3.4"
+    "axios": "^1.6.8"
   }
 }
