@@ -99,7 +99,7 @@ function convertPayloadToFormattedRequestBody(payload) {
     channel_name: payload.channel.name,
     user_id: payload.user.id,
     user_name: payload.user.name,
-    command: "/timmy-a",
+    command: "",
     text: text,
     api_app_id: payload.api_app_id,
     is_enterprise_install: payload.is_enterprise_install,
@@ -109,9 +109,9 @@ function convertPayloadToFormattedRequestBody(payload) {
 }
 
 function handleRequest(req, res, formattedRequestBody) {
-  console.log("Request from ==> ", req.body.team_domain, req.body.channel_name, req.body.user_name)
-  console.log("Command ==> ", req.body.command)
-  console.log("Text ==> ", req.body.text)
+  console.log("Request from ==> ", formattedRequestBody.team_domain, formattedRequestBody.channel_name, formattedRequestBody.user_name)
+  console.log("Command ==> ", formattedRequestBody.command)
+  console.log("Text ==> ", formattedRequestBody.text)
 
   const teamId = formattedRequestBody.team_id;
   if (teamId !== "T03180XEC") {
@@ -210,7 +210,12 @@ function checkUrlPath(requestUrl) {
 
 function publishMessage(topicName, messagePayload) {
   try {
-    const topic = pubsub.topic(topicName);
+    const publishOptions = {
+      gaxOpts: {
+        timeout: 100000,
+      }
+    };
+    const topic = pubsub.topic(topicName, publishOptions);
     const messagePayloadBuffer = Buffer.from(JSON.stringify(messagePayload), "utf8");
     const messageId = topic.publishMessage({ data: messagePayloadBuffer });
     return Promise.resolve(messageId);
