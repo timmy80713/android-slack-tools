@@ -15,7 +15,7 @@ gcloud functions deploy pubsub-ci \
     --set-secrets "SLACK_WEBHOOKS=SLACK_WEBHOOKS:latest"
 
 REPOSITORY=gcf-artifacts
-PACKAGE=pubsub--ci
+PACKAGE=android--slack--tools__asia--east1__pubsub--ci
 for VERSION in $(gcloud artifacts versions list --repository=${REPOSITORY} --location=${REGION} --package=${PACKAGE} --format='value(name)'); do
     gcloud artifacts versions delete ${VERSION} --quiet --repository=${REPOSITORY} --location=${REGION} --package=${PACKAGE}
 done
