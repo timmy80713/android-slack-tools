@@ -17,7 +17,7 @@ gcloud functions deploy api-changelog \
     --set-secrets "SLACK_WEBHOOKS=SLACK_WEBHOOKS:latest"
 
 REPOSITORY=gcf-artifacts
-PACKAGE=api--changelog
+PACKAGE=android--slack--tools__asia--east1__api--changelog
 for VERSION in $(gcloud artifacts versions list --repository=${REPOSITORY} --location=${REGION} --package=${PACKAGE} --format='value(name)'); do
     gcloud artifacts versions delete ${VERSION} --quiet --repository=${REPOSITORY} --location=${REGION} --package=${PACKAGE}
 done
