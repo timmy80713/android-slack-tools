@@ -3,13 +3,11 @@ package functions
 import com.google.cloud.functions.HttpFunction
 import com.google.cloud.functions.HttpRequest
 import com.google.cloud.functions.HttpResponse
-import functions.api.ClickUpApiClientImpl
 import functions.api.SlackApiClientImpl
-import functions.executor.*
+import functions.executor.ExecutorFinishMockImpl
 import functions.model.ChangelogRequestBody
 import functions.model.Workflow
 import functions.model.slack.SlackMessagePayloadCreator
-import functions.repo.ClickUpRepoImpl
 import functions.repo.SlackRepoImpl
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
@@ -36,32 +34,44 @@ class App : HttpFunction {
 
         val executor = when (changelogRequestBody.workflow) {
             Workflow.ReleaseRegressionStart -> {
-                ExecutorRegressionStart(
-                    tag = changelogRequestBody.tag,
-                    clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
-                )
+//                ExecutorRegressionStart(
+//                    tag = changelogRequestBody.tag,
+//                    clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
+//                )
+                null
             }
 
             Workflow.ReleaseRegressionHotfix -> {
-                ExecutorRegressionHotfix(
-                    tag = changelogRequestBody.tag,
-                    clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
-                )
+//                ExecutorRegressionHotfix(
+//                    tag = changelogRequestBody.tag,
+//                    clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
+//                )
+                null
             }
 
             Workflow.ReleaseRegressionFinish -> {
-                ExecutorRegressionFinish(
+//                ExecutorRegressionFinish(
+//                    tag = changelogRequestBody.tag,
+//                    clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
+//                    slackRepoImpl = SlackRepoImpl(SlackApiClientImpl()),
+//                    slackMessagePayloadCreator = SlackMessagePayloadCreator(),
+//                )
+                ExecutorFinishMockImpl(
                     tag = changelogRequestBody.tag,
-                    clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
                     slackRepoImpl = SlackRepoImpl(SlackApiClientImpl()),
                     slackMessagePayloadCreator = SlackMessagePayloadCreator(),
                 )
             }
 
             Workflow.ReleaseProductionFinish -> {
-                ExecutorProductionFinish(
+//                ExecutorProductionFinish(
+//                    tag = changelogRequestBody.tag,
+//                    clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
+//                    slackRepoImpl = SlackRepoImpl(SlackApiClientImpl()),
+//                    slackMessagePayloadCreator = SlackMessagePayloadCreator(),
+//                )
+                ExecutorFinishMockImpl(
                     tag = changelogRequestBody.tag,
-                    clickUpRepoImpl = ClickUpRepoImpl(ClickUpApiClientImpl()),
                     slackRepoImpl = SlackRepoImpl(SlackApiClientImpl()),
                     slackMessagePayloadCreator = SlackMessagePayloadCreator(),
                 )

@@ -26,7 +26,7 @@ class SlackApiClientImpl {
                     host = "slack.com"
                     path("api", "users.list")
                 }
-                header("Authorization", System.getenv(Env.SLACK_API_AUTHORIZATION))
+                header("Authorization", "Bearer ${System.getenv(Env.SLACK_API_AUTHORIZATION)}")
                 if (cursor != null) {
                     parameter("cursor", cursor)
                 }
