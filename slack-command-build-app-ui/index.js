@@ -19,14 +19,14 @@ functions.http("main", (req, res) => {
     }
 
     const teamId = req.body.team_id;
-    if (teamId !== "T03180XEC") {
+    if (teamId !== "T079JAYVA3E") {
         const errorMessage = "You cannot use this slash command in this Slack team.";
         console.log(errorMessage);
         res.status(200).send(errorMessage);
         return;
     }
     const channelId = req.body.channel_id;
-    const allowChannelIds = ["D025JAVQRRT", "C053SNHM2NM"];
+    const allowChannelIds = ["C08AV2VJMHS", "U07A4L4DSAU"];
     if (!allowChannelIds.includes(channelId)) {
         const errorMessage = "You cannot use this slash command in this channel.";
         console.log(errorMessage);
