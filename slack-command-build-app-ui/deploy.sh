@@ -16,7 +16,7 @@ gcloud functions deploy slack-command-build-app-ui \
     --set-secrets "SLACK_SIGNING_SECRET=SLACK_SIGNING_SECRET:latest"
 
 REPOSITORY=gcf-artifacts
-PACKAGE=slack--command--build--app--ui
+PACKAGE=android--slack--tools__asia--east1__slack--command--build--app--ui
 for VERSION in $(gcloud artifacts versions list --repository=${REPOSITORY} --location=${REGION} --package=${PACKAGE} --format='value(name)'); do
     gcloud artifacts versions delete ${VERSION} --quiet --repository=${REPOSITORY} --location=${REGION} --package=${PACKAGE}
 done
